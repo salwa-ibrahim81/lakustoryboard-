@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#e8590c">
+<link rel="icon" type="image/png" href="lk-icon-192.png">
+<link rel="apple-touch-icon" href="lk-apple-touch.png">
+<link rel="manifest" href="lk-manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LakuStoryboard">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>LakuStoryboard</title>
+<style>
+:root{--bg:#fff7f0;--card:#fff;--pri:#e8590c;--pri2:#c2410c;--ink:#2b2118;--mut:#7a6a5c;--line:#f0dfd0}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+header{background:linear-gradient(135deg,var(--pri),#f59f00);color:#fff;padding:22px 16px;text-align:center}
+header h1{margin:0;font-size:1.5rem}
+header p{margin:6px 0 0;font-size:.92rem;opacity:.95}
+main{max-width:640px;margin:0 auto;padding:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.card h2{margin:0 0 10px;font-size:1.02rem}
+.num{display:inline-block;background:var(--pri);color:#fff;border-radius:50%;width:24px;height:24px;text-align:center;line-height:24px;font-size:.85rem;margin-right:6px}
+label.l{display:block;font-size:.85rem;font-weight:600;margin:10px 0 4px}
+input,select,textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;font-size:1rem;font-family:inherit;background:#fffdfb}
+textarea{min-height:70px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:#fffdfb;border-radius:20px;padding:8px 13px;font-size:.88rem;cursor:pointer;user-select:none}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.imgs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+.slot{aspect-ratio:1;border:2px dashed var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:1.5rem;cursor:pointer;overflow:hidden;background:#fffdfb;margin:0}
+.slot img{width:100%;height:100%;object-fit:cover}
+.slot input{display:none}
+button.main{width:100%;padding:14px;border:0;border-radius:12px;background:var(--pri);color:#fff;font-size:1.05rem;font-weight:700;margin-top:10px;cursor:pointer}
+button.main:active{background:var(--pri2)}
+button.auto{width:100%;padding:12px;border:2px solid var(--pri);border-radius:12px;background:#fff;color:var(--pri);font-size:1rem;font-weight:700;cursor:pointer}
+button.sec{padding:10px 14px;border:1px solid var(--pri);background:#fff;color:var(--pri);border-radius:10px;font-weight:600;cursor:pointer;font-size:.9rem}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.set{border:2px solid var(--line);border-radius:14px;padding:12px;margin-bottom:14px;background:#fff}
+.set h3{margin:0 0 8px;color:var(--pri2);font-size:1rem}
+.panel{border-left:4px solid var(--pri);background:#fff9f3;border-radius:8px;padding:10px 12px;margin-bottom:10px}
+.panel .top{display:flex;justify-content:space-between;font-weight:700;font-size:.9rem}
+.panel .time{color:var(--mut);font-weight:600}
+.panel p{margin:6px 0 0;font-size:.92rem}
+.tag{display:inline-block;background:var(--pri);color:#fff;font-size:.72rem;border-radius:6px;padding:1px 6px;margin-right:4px;font-weight:700}
+.vo{background:#fff;border:1px dashed var(--line);border-radius:8px;padding:8px;margin-top:6px}
+.imgrow{display:flex;gap:6px;margin-bottom:8px}
+.imgrow img{width:54px;height:54px;object-fit:cover;border-radius:8px}
+.hint{font-size:.8rem;color:var(--mut);margin:6px 0 0}
+footer{text-align:center;font-size:.78rem;color:var(--mut);padding:16px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:20px;font-size:.88rem;opacity:0;transition:.25s;pointer-events:none;z-index:9}
+.toast.show{opacity:1}
+
+#gate{position:fixed;inset:0;background:linear-gradient(160deg,#e8590c,#f59f00);z-index:99;display:flex;align-items:center;justify-content:center;padding:20px}
+#gate .box{background:#fff;border-radius:18px;padding:24px 20px;max-width:380px;width:100%;text-align:center}
+#gate h2{margin:0 0 6px}
+#gate p{margin:0 0 14px;color:#7a6a5c;font-size:.92rem}
+#gate input{text-align:center;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+#gate .err{color:#c92a2a;font-size:.85rem;min-height:1.2em;margin-bottom:6px}
+#gate a{color:#c2410c;font-weight:700;font-size:.88rem}
+</style>
+</head>
+<body>
+<div id="gate"><div class="box">
+  <h2>🔒 LakuStoryboard</h2>
+  <p>Masukkan kod akses yang anda terima selepas pembayaran.</p>
+  <input id="kod" placeholder="SL-XXXX-XXXX" autocomplete="off" autocapitalize="characters">
+  <div class="err" id="gerr"></div>
+  <button class="main" id="masuk" style="margin-top:0">Masuk</button>
+  <p style="margin:14px 0 0"><a href="https://wa.me/601131236469?text=Salam%2C%20saya%20nak%20kod%20akses%20LakuStoryboard" target="_blank" rel="noopener">Belum ada kod? Hubungi WhatsApp</a></p>
+</div></div>
+
+<header>
+  <h1>🎬 LakuStoryboard</h1>
+  <p>Jana storyboard + skrip VO video produk dalam BM. Semua buat kat telefon.</p>
+</header>
+<main>
+
+<div class="card">
+  <h2><span class="num">1</span>Upload gambar produk</h2>
+  <div class="imgs" id="imgs"></div>
+  <p class="hint">Boleh tambah sehingga 4 gambar.</p>
+  <label class="l">Nama produk</label>
+  <input id="nama" placeholder="cth: Serum Kolagen Glow">
+  <div class="row">
+    <div><label class="l">Harga / promosi</label><input id="harga" placeholder="cth: RM29, free pos"></div>
+    <div><label class="l">Kategori produk</label>
+      <select id="kategori">
+        <option>Kecantikan</option><option>Fesyen</option><option>Makanan</option>
+        <option>Gajet</option><option>Rumah & Dapur</option><option>Kesihatan</option>
+        <option>Bayi & Anak</option><option>Lain-lain</option>
+      </select></div>
+  </div>
+  <label class="l">Kelebihan utama (satu baris satu, maksimum 3)</label>
+  <textarea id="kelebihan" placeholder="Cepat meresap&#10;Tak melekit&#10;Sesuai kulit sensitif"></textarea>
+</div>
+
+<div class="card">
+  <h2><span class="num">2</span>Pilih saiz</h2>
+  <div class="chips" id="saizChips"></div>
+</div>
+
+<div class="card">
+  <h2><span class="num">3</span>Pilih model AI</h2>
+  <label class="l" style="margin-top:0">Jenis</label>
+  <div class="chips" id="jenisChips"></div>
+  <label class="l">Penampilan</label>
+  <div class="chips" id="jantinaChips"></div>
+</div>
+
+<div class="card">
+  <h2><span class="num">4</span>Pilih gaya video</h2>
+  <div class="chips" id="gayaChips"></div>
+</div>
+
+<div class="card">
+  <h2><span class="num">5</span>Durasi & bahasa</h2>
+  <div class="row">
+    <div><label class="l" style="margin-top:0">Durasi</label>
+      <select id="durasi"><option value="15">15 saat</option><option value="30" selected>30 saat</option><option value="45">45 saat</option><option value="60">60 saat</option></select></div>
+    <div><label class="l" style="margin-top:0">Bahasa skrip</label>
+      <select id="bahasa"><option>Bahasa Melayu</option></select></div>
+  </div>
+  <p class="hint">Durasi menentukan bilangan panel: 15s = 4 panel, 30s = 6 panel, 45s/60s = 8 panel.</p>
+</div>
+
+<div class="card">
+  <h2><span class="num">6</span>Auto Fill & Jana</h2>
+  <button class="auto" id="auto">⚡ Auto Fill</button>
+  <p class="hint">Isi nama produk dulu. Auto Fill akan lengkapkan kelebihan dan promosi yang kosong.</p>
+  <label class="l">Berapa storyboard?</label>
+  <div class="chips" id="versiChips"></div>
+  <button class="main" id="jana">✨ Jana</button>
+</div>
+
+<div id="hasil"></div>
+
+</main>
+<footer>LakuStoryboard · Muat turun, terus rakam ikut panel</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== KOD AKSES (hash SHA-256) ===== */
+const HASHES=[
+  "82cc3892eb4bcc9f4b02ebe4a902563c2640400b0f10207101ce8d656075a6d7",
+  "c0bb334f415d03523fce31a1785856e41fbae65b24f62ac7d048a24a7f951943",
+  "1f08909f6624b34f1fa6be081b60816237445e54ded3754e4aef4a4667ddaec0",
+  "99f76abc1fceff1b4a54ed0eefacd07f87faf231d4e6a03617d038582035c27e",
+  "5625d4afdccac5fc9bdd8228c201e6569845e5f7c8bf934c1c83f5449e0788fb",
+  "c0b16468f8e40b4599d5183a1ae0e4db556d5d37c387fe66735648827d4617ec",
+  "43d7d91c7c4d5658250c8b0f441fc171b58df77468b8415871d4b5f97b4bbf77",
+  "4901708f1af38437a9765619f4d264ce6e049f3060e92c22cd8f36d3d68dd01d",
+  "6b913cacf50371b3459e06b9317719c0a39bd05f5fc68bdcea0ea02128a10080",
+  "78a16bacb88b4b28a4e4f55ba9d27d4b3f688658dccc7ed270e07a84f1596f13"
+];
+/* ==================================== */
+async function sha(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+function bukaGate(){document.getElementById("gate").style.display="none"}
+try{const h=localStorage.getItem("sl_ok");if(h&&HASHES.includes(h))bukaGate();else if(h)localStorage.removeItem("sl_ok")}catch(e){}
+document.getElementById("masuk").onclick=async()=>{
+  const e=document.getElementById("gerr");
+  if(!window.crypto||!crypto.subtle){e.textContent="Sila buka melalui pautan https.";return}
+  const k=document.getElementById("kod").value.trim().toUpperCase();
+  if(!k){e.textContent="Masukkan kod dahulu.";return}
+  const h=await sha(k);
+  if(HASHES.includes(h)){try{localStorage.setItem("sl_ok",h)}catch(x){}bukaGate()}
+  else e.textContent="Kod tidak sah. Semak semula atau hubungi penjual.";
+};
+document.getElementById("kod").addEventListener("keydown",ev=>{if(ev.key==="Enter")document.getElementById("masuk").click()});
+</script>
+<script>
+const SAIZ=["9:16","1:1","16:9"];
+const JENIS=["Individu","Pasangan"];
+const JANTINA=["Lelaki","Perempuan","Bertudung"];
+const GAYA=["Review UGC","POV","GRWM","Unboxing","Sebelum & Selepas","Kartun","3D"];
+const VERSI=["1","2","4"];
+const S={saiz:"9:16",jenis:"Individu",jantina:"Perempuan",gaya:"Review UGC",versi:"2"};
+const gambar=[null,null,null,null];
+
+function chips(id,arr,key){
+  const el=document.getElementById(id);
+  el.innerHTML="";
+  arr.forEach(v=>{
+    const c=document.createElement("div");
+    c.className="chip"+(S[key]===v?" on":"");
+    c.textContent=v;
+    c.onclick=()=>{S[key]=v;chips(id,arr,key)};
+    el.appendChild(c);
+  });
+}
+chips("saizChips",SAIZ,"saiz");
+chips("jenisChips",JENIS,"jenis");
+chips("jantinaChips",JANTINA,"jantina");
+chips("gayaChips",GAYA,"gaya");
+chips("versiChips",VERSI,"versi");
+
+function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1800)}
+function modelTeks(){
+  const j=S.jantina;
+  if(S.jenis==="Individu") return j==="Bertudung"?"Perempuan bertudung":j;
+  if(j==="Lelaki") return "Pasangan lelaki";
+  if(j==="Perempuan") return "Pasangan perempuan";
+  return "Pasangan suami isteri (isteri bertudung)";
+}
+
+// upload gambar
+const imgs=document.getElementById("imgs");
+function pasangSlot(slot,i){
+  slot.innerHTML=gambar[i]?'<img src="'+gambar[i]+'">':'+';
+  const inp=document.createElement("input");
+  inp.type="file";inp.accept="image/*";
+  inp.onchange=e=>{
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=()=>{gambar[i]=r.result;pasangSlot(slot,i)};
+    r.readAsDataURL(f);
+  };
+  slot.appendChild(inp);
+}
+for(let i=0;i<4;i++){
+  const s=document.createElement("label");
+  s.className="slot";
+  pasangSlot(s,i);
+  imgs.appendChild(s);
+}
+
+const pick=(a,i)=>a[i%a.length];
+
+const KEL_AUTO={
+ "Kecantikan":["Meresap cepat","Tak melekit","Lembut di kulit"],
+ "Fesyen":["Fabrik selesa","Potongan kemas","Mudah digayakan"],
+ "Makanan":["Rasa sedap","Segar dan bersih","Sesuai untuk keluarga"],
+ "Gajet":["Mudah digunakan","Tahan lama","Padat dan ringan"],
+ "Rumah & Dapur":["Jimat masa","Mudah dibersihkan","Muat ruang kecil"],
+ "Kesihatan":["Mudah diamalkan","Bahan berkualiti","Sesuai setiap hari"],
+ "Bayi & Anak":["Lembut dan selamat","Mudah dibawa","Senang dicuci"],
+ "Lain-lain":["Mudah digunakan","Berkualiti","Harga berpatutan"]
+};
+const MASALAH={
+ "Kecantikan":["Penat cuba macam-macam produk tapi kulit tak jadi-jadi?","Kulit nampak kusam walaupun dah jaga rapi?"],
+ "Fesyen":["Selalu rasa ada baju tapi tak tahu nak pakai apa?","Cari baju selesa tapi masih nampak kemas?"],
+ "Makanan":["Tengah hari tak tahu nak makan apa?","Nak sesuatu yang sedap tapi tak sempat masak?"],
+ "Gajet":["Gajet lama asyik buat hal bila waktu penting?","Cari gajet berguna tapi harga tak masuk akal?"],
+ "Rumah & Dapur":["Rumah cepat bersepah, dapur pula serabut?","Kerja rumah tak habis-habis?"],
+ "Kesihatan":["Badan cepat letih padahal tak buat apa-apa?","Susah nak jaga rutin sihat bila sibuk?"],
+ "Bayi & Anak":["Pening pilih barang yang selamat untuk si kecil?","Anak aktif, mak ayah pun kena pantas?"],
+ "Lain-lain":["Pernah rasa masalah ni tak habis-habis?","Cari penyelesaian yang mudah dan berbaloi?"]
+};
+const HOOK={
+ "Review UGC":["Korang, aku nak jujur pasal benda ni.","Aku dah pakai seminggu, dan ni yang jadi.","Jangan scroll dulu, ini berbaloi.","Ramai tanya aku, ni jawapannya."],
+ "POV":["POV: kau jumpa {p} masa tengah cari penyelesaian.","POV: akhirnya masalah kau selesai.","POV: kawan kau cerita pasal {p}.","POV: kau tak sangka {p} sebaik ni."],
+ "GRWM":["Jom siap-siap dengan aku, hari ni ada {p}.","GRWM, dan ni rahsia aku.","Rutin harian aku berubah sebab {p}.","Siap-siap sambil aku cerita pasal {p}."],
+ "Unboxing":["Parcel sampai! Jom buka sama-sama.","Unboxing {p}, betul ke hebat?","Apa yang ada dalam kotak ni? Jom tengok.","Kotak dah sampai, jom bongkar {p}."],
+ "Sebelum & Selepas":["Tengok perbezaan sebelum dan selepas ni.","Aku tak sangka beza sebesar ni.","Sebelum dan selepas guna {p}.","Ini bezanya bila aku guna {p}."],
+ "Kartun":["Hai! Aku {p}, aku datang selamatkan hari kau!","Pernah tak masalah kau macam monster? Aku ada jawapannya.","Jumpa watak kecil yang bawa kelainan besar.","Selamat datang ke dunia {p}!"],
+ "3D":["Bayangkan {p} muncul depan mata kau.","Tengok dari dekat, setiap detail cantik.","Dunia 3D, produk sebenar, satu jawapan.","Putar dan lihat {p} dari semua sudut."]
+};
+const VISUAL={
+ "Review UGC":"Selfie handheld, cahaya semula jadi, bercakap terus ke kamera.",
+ "POV":"Kamera pandang mata pertama, tangan sahaja dalam bingkai, teks muncul di skrin.",
+ "GRWM":"Depan cermin atau meja solek, potongan pantas antara langkah, muzik ringan.",
+ "Unboxing":"Close-up tangan membuka kotak, paparan atas meja.",
+ "Sebelum & Selepas":"Skrin berpecah atau transisi swipe, cahaya sama untuk kedua-dua syot.",
+ "Kartun":"Watak kartun berwarna cerah, latar ringkas, teks animasi.",
+ "3D":"Render 3D produk berputar perlahan, latar gradien, kesan kilau."
+};
+const ayat=s=>s.replace(/\s+/g," ").trim();
+
+function bina(ctx,iv){
+  const {p,kat,harga,kel,model,gaya,dur,n}=ctx;
+  const masalah=pick(MASALAH[kat],iv);
+  const hook=pick(HOOK[gaya],iv).replace(/\{p\}/g,p);
+  const [k1,k2,k3]=kel;
+  const promo=harga?("Sekarang "+harga+" sahaja."):"Stok terhad, jangan terlepas.";
+  const sama=model.startsWith("Pasangan")?"Pasangan ":"Model ";
+  const B={
+   hook:{nama:"Hook",scene:"Tunjuk "+p+" dalam 2 saat pertama. "+VISUAL[gaya],vo:hook,teks:p},
+   masalah:{nama:"Masalah",scene:sama+model.toLowerCase()+" tunjuk reaksi kecewa atau keliru. Potongan pantas.",vo:masalah,teks:"Pernah rasa macam ni?"},
+   reveal:{nama:"Pengenalan",scene:"Close-up "+p+" dengan label jelas, dipegang paras dada.",vo:"Sampai aku jumpa "+p+".",teks:p},
+   demo:{nama:"Demo",scene:"Tunjuk cara guna langkah demi langkah, syot dekat pada tangan dan produk.",vo:"Caranya senang. Ambil, guna, siap. "+k1+".",teks:"Cara guna"},
+   kelebihan:{nama:"Kelebihan",scene:"Teks kelebihan muncul satu persatu di sisi produk.",vo:"Paling aku suka: "+k1+", "+k2+", dan "+k3+".",teks:k1+" | "+k2},
+   bukti:{nama:"Bukti",scene:"Syot hasil atau reaksi puas hati model. Boleh tambah tangkapan skrin komen pelanggan.",vo:"Hasilnya nampak jelas, dan ramai dah puas hati.",teks:"Hasil sebenar"},
+   tawaran:{nama:"Tawaran",scene:"Produk dengan tag harga animasi, teks harga besar di tengah.",vo:promo,teks:harga||"Tawaran terhad"},
+   cta:{nama:"Seruan bertindak",scene:"Model tunjuk ke bawah atau ke pautan. Teks 'Klik troli kuning' atau 'Tekan pautan di bio'.",vo:"Jangan tunggu lama. Tekan pautan, dapatkan "+p+" hari ni.",teks:"Dapatkan sekarang"}
+  };
+  const urut={4:["hook","demo","kelebihan","cta"],
+              6:["hook","masalah","reveal","demo","kelebihan","cta"],
+              8:["hook","masalah","reveal","demo","kelebihan","bukti","tawaran","cta"]}[n];
+  const w={hook:.9,masalah:1,reveal:1,demo:1.3,kelebihan:1.2,bukti:1,tawaran:.9,cta:.9};
+  const jumlah=urut.reduce((s,k)=>s+w[k],0);
+  let t=0;
+  return urut.map((k,i)=>{
+    const mula=t;
+    const tamat=(i===urut.length-1)?dur:Math.min(dur,t+Math.max(2,Math.round(dur*w[k]/jumlah)));
+    t=tamat;
+    return {no:i+1,...B[k],mula,tamat};
+  });
+}
+
+function panelKira(d){return d<=15?4:d<=30?6:8}
+
+document.getElementById("auto").onclick=()=>{
+  const p=document.getElementById("nama").value.trim();
+  if(!p){toast("Isi nama produk dulu");document.getElementById("nama").focus();return}
+  const kat=document.getElementById("kategori").value;
+  const ta=document.getElementById("kelebihan");
+  const ada=ta.value.split("\n").map(s=>s.trim()).filter(Boolean);
+  const auto=KEL_AUTO[kat];
+  ta.value=ada.concat(auto.filter(a=>!ada.includes(a))).slice(0,3).join("\n");
+  const h=document.getElementById("harga");
+  if(!h.value.trim())h.value="Harga promosi terhad";
+  toast("Auto Fill siap");
+};
+
+document.getElementById("jana").onclick=()=>{
+  const p=document.getElementById("nama").value.trim();
+  if(!p){toast("Isi nama produk dulu");document.getElementById("nama").focus();return}
+  const kat=document.getElementById("kategori").value;
+  let kel=document.getElementById("kelebihan").value.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,3);
+  KEL_AUTO[kat].forEach(a=>{if(kel.length<3&&!kel.includes(a))kel.push(a)});
+  const dur=+document.getElementById("durasi").value;
+  const ctx={p,kat,harga:document.getElementById("harga").value.trim(),kel,
+    model:modelTeks(),gaya:S.gaya,dur,n:panelKira(dur)};
+  const v=+S.versi;
+  const hasil=document.getElementById("hasil");
+  hasil.innerHTML="";
+  const thumbs=gambar.filter(Boolean).map(s=>'<img src="'+s+'">').join("");
+  for(let i=0;i<v;i++){
+    const panels=bina(ctx,i);
+    let txt="STORYBOARD "+(i+1)+" | "+p+" | "+ctx.gaya+" | "+ctx.model+" | "+dur+"s | "+S.saiz+" | BM\n\n";
+    const div=document.createElement("div");
+    div.className="set";
+    div.innerHTML="<h3>Storyboard "+(i+1)+" · "+ctx.gaya+" · "+S.saiz+"</h3>"+(thumbs?'<div class="imgrow">'+thumbs+'</div>':"");
+    panels.forEach(pn=>{
+      txt+="Panel "+pn.no+" ("+pn.mula+"-"+pn.tamat+"s) "+pn.nama+"\nScene: "+pn.scene+"\nTeks skrin: "+pn.teks+"\nVO: "+ayat(pn.vo)+"\n\n";
+      const e=document.createElement("div");
+      e.className="panel";
+      e.innerHTML='<div class="top"><span>Panel '+pn.no+' · '+pn.nama+'</span><span class="time">'+pn.mula+'-'+pn.tamat+'s</span></div>'
+        +'<p><span class="tag">SCENE</span>'+pn.scene+'</p>'
+        +'<p><span class="tag">TEKS</span>'+pn.teks+'</p>'
+        +'<div class="vo"><span class="tag">VO</span>'+ayat(pn.vo)+'</div>';
+      div.appendChild(e);
+    });
+    const a=document.createElement("div");
+    a.className="actions";
+    a.innerHTML='<button class="sec">📋 Salin</button><button class="sec">⬇️ Muat turun</button>';
+    a.children[0].onclick=()=>{navigator.clipboard.writeText(txt).then(()=>toast("Disalin"),()=>toast("Gagal salin"))};
+    a.children[1].onclick=()=>{
+      const l=document.createElement("a");
+      l.href=URL.createObjectURL(new Blob([txt],{type:"text/plain;charset=utf-8"}));
+      l.download="storyboard-"+(i+1)+"-"+p.replace(/\s+/g,"-")+".txt";
+      l.click();
+    };
+    div.appendChild(a);
+    hasil.appendChild(div);
+  }
+  hasil.scrollIntoView({behavior:"smooth"});
+};
+</script>
+</body>
+</html>
