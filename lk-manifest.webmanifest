@@ -1,1 +1,17 @@
-
+{
+  "name": "LakuStoryboard",
+  "short_name": "LakuStoryboard",
+  "description": "Jana storyboard dan skrip VO video produk dalam Bahasa Melayu.",
+  "id": "app-lk.html",
+  "start_url": "app-lk.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff7f0",
+  "theme_color": "#e8590c",
+  "icons": [
+    {"src": "lk-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "lk-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "lk-icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
